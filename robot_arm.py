@@ -34,9 +34,11 @@ for i in range(250):
 
 
 def mouse_press(event):
-    global mouse_pressed
+    global mouse_pressed,mouse_x,mouse_y
 
     mouse_pressed = True
+    mouse_x = event.x
+    mouse_y = event.y
 
 def mouse_release(event):
     global mouse_pressed,on_arm1,on_arm2
@@ -70,10 +72,10 @@ while True:
 
         canvas.create_text(100,50,text='Top Joint Angle: '+str(int(a2))+'\nBottom Joint Angle: '+str(int(a1)),font=('TkTextFont',15),fill='purple')
 
-        print('Bottom Joint Angle: ' + str(a1) + '  Top Joint Angle: ' + str(a2))
+        #print('Bottom Joint Angle: ' + str(a1) + '  Top Joint Angle: ' + str(a2))
 
         if mouse_pressed:
-            if on_arm1:
+            '''if on_arm1:
                 dx = mouse_x-250
                 dy = mouse_y-500
 
@@ -118,15 +120,47 @@ while True:
             elif not on_arm2:
                 for i in arm1_pixels:
                     if get_dist(mouse_x,mouse_y,i[0],i[1]) < 20:
-                        on_arm1 = True
+                        on_arm1 = True'''
 
-            if on_arm2:
+            if True:
                 dx = mouse_x-x
                 dy = mouse_y-y
 
-                a = math.atan2(dy,dx)
+                dx1 = mouse_x-250
+                dy1 = mouse_y-500
+
+                d = get_dist(dx1+250,dy1,250,500)
+
+                a1 = math.acos((125000-d**2)/250000)
+
+                b = math.acos(d**2/(500*d))
+                c = math.acos((d**2+dx1**2-dy1**2)/(2*d*dx1))
+
+                print(math.degrees(a1),math.degrees(b+c))
+
+
+                a = -(b+c-math.radians(90))
 
                 a2 = math.degrees(-a)
+
+                xs = math.cos(a)
+                ys = math.sin(a)
+
+                x1 = 250
+                y1 = 500
+                dist = get_dist(250,500,x1,y1)
+                arm1_pixels = []
+                while dist < 250:
+                    x1 += xs
+                    y1 += ys
+
+                    arm1_pixels.append([x1,y1])
+
+                    dist = get_dist(250,500,x1,y1)
+                x = x1
+                y = y1
+
+                a = -a1
 
                 xs = math.cos(a)
                 ys = math.sin(a)
@@ -144,6 +178,7 @@ while True:
                     dist = get_dist(x,y,x1,y1)
                 x2 = x1
                 y2 = y1
+
             elif not on_arm1:
                 for i in arm2_pixels:
                     if get_dist(mouse_x,mouse_y,i[0],i[1]) < 20:
