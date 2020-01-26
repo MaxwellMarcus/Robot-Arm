@@ -7,14 +7,17 @@ import math
 
 root = Tk()
 
-canvas = Canvas(root,width=500,height=500)
+canvas = Canvas(root,width=1000,height=1000)
 canvas.pack()
 
-x = 250
-y = 250
+x_offset = 500
+y_offset = 750
 
-x2 = 250
-y2 = 0
+x = 177
+y = -177
+
+x2 = x+222
+y2 = y+111
 
 mouse_x = 0
 mouse_y = 0
@@ -23,8 +26,8 @@ mouse_pressed = False
 on_arm1 = False
 on_arm2 = False
 
-a1 = 90
-a2 = 90
+a1 = 270
+a2 = 270
 
 arm1_pixels = []
 arm2_pixels = []
@@ -66,118 +69,73 @@ while True:
     try:
         canvas.delete(ALL)
 
-        canvas.create_line(250,500,x,y,width=20)
+        canvas.create_line(x_offset,y_offset,x+x_offset,y+y_offset,width=40)
+        canvas.create_line(x+x_offset,y+y_offset,x2+x_offset,y2+y_offset,width=40)
 
-        canvas.create_line(x,y,x2,y2,width=20)
+        canvas.create_oval(x+x_offset+30,y+y_offset+30,x+x_offset-30,y+y_offset-30,fill='black')
+        canvas.create_oval(x_offset+30,y_offset+30,x_offset-30,y_offset-30,fill='black')
+        canvas.create_rectangle(x_offset+100,y_offset+60,x_offset-100,y_offset,fill='gray')
 
         canvas.create_text(100,50,text='Top Joint Angle: '+str(int(a2))+'\nBottom Joint Angle: '+str(int(a1)),font=('TkTextFont',15),fill='purple')
 
-        #print('Bottom Joint Angle: ' + str(a1) + '  Top Joint Angle: ' + str(a2))
-
         if mouse_pressed:
-            '''if on_arm1:
-                dx = mouse_x-250
-                dy = mouse_y-500
-
-                a = math.atan2(dy,dx)
-
-                a1 = math.degrees(-a)
-
-                xs = math.cos(a)
-                ys = math.sin(a)
-
-                x1 = 250
-                y1 = 500
-                dist = get_dist(250,500,x1,y1)
-                arm1_pixels = []
-                while dist < 250:
-                    x1 += xs
-                    y1 += ys
-
-                    arm1_pixels.append([x1,y1])
-
-                    dist = get_dist(250,500,x1,y1)
-                x = x1
-                y = y1
-
-
-                xs = arm2_pixels[1][0]-arm2_pixels[0][0]
-                ys = arm2_pixels[1][1]-arm2_pixels[0][1]
-
-                x1 = x
-                y1 = y
-                dist = get_dist(x,y,x1,y1)
-                arm2_pixels = []
-                while dist < 250:
-                    x1 += xs
-                    y1 += ys
-
-                    arm2_pixels.append([x1,y1])
-
-                    dist = get_dist(x,y,x1,y1)
-                x2 = x1
-                y2 = y1
-            elif not on_arm2:
-                for i in arm1_pixels:
-                    if get_dist(mouse_x,mouse_y,i[0],i[1]) < 20:
-                        on_arm1 = True'''
-
             if True:
-                dx = mouse_x-x
-                dy = mouse_y-y
+                if mouse_y > y_offset:
+                    mouse_y = y_offset
 
-                dx1 = mouse_x-250
-                dy1 = mouse_y-500
+                ex = mouse_x-x_offset
+                dx1 = mouse_x-x_offset
+                dy1 = mouse_y-y_offset
 
-                d = get_dist(dx1+250,dy1,250,500)
+                d = get_dist(dx1,dy1,0,0)
 
-                a1 = math.acos((125000-d**2)/250000)
+                if d > x_offset:
+                    a = math.asin(dy1/d)
+                    if dx1 > 0:
+                        dx1 = math.cos(a)*500
+                    else:
+                        dx1 = -math.cos(a)*500
+                    dy1 = math.sin(a)*500
+                    d = 500
 
-                b = math.acos(d**2/(500*d))
-                c = math.acos((d**2+dx1**2-dy1**2)/(2*d*dx1))
+                    ex = dx1
 
-                print(math.degrees(a1),math.degrees(b+c))
+                reversed = 0
+                if dx1 < 0:
+                    reversed = 1
+                    dx1 = -dx1
 
+                if dx1 == 0:
+                    dx1 = .1
 
-                a = -(b+c-math.radians(90))
+                a = math.acos(d/500)
+                o = math.atan(dy1/dx1)
+                j1 = -a+o
+                if reversed:
+                    j1 = (-(j1-math.radians(90)))+math.radians(90)
+
+                j2 = math.acos((125000-d**2)/125000)
+
+                a = j1
 
                 a2 = math.degrees(-a)
 
-                xs = math.cos(a)
-                ys = math.sin(a)
+                xs = 250*math.cos(a)
+                ys = 250*math.sin(a)
 
-                x1 = 250
-                y1 = 500
-                dist = get_dist(250,500,x1,y1)
-                arm1_pixels = []
-                while dist < 250:
-                    x1 += xs
-                    y1 += ys
+                x = xs
+                y = ys
 
-                    arm1_pixels.append([x1,y1])
+                a = j2+math.radians(90)
 
-                    dist = get_dist(250,500,x1,y1)
-                x = x1
-                y = y1
+                xs = 250*math.cos(a)
+                ys = 250*math.sin(a)
 
-                a = -a1
+                x2 = x+xs
+                y2 = y+ys
 
-                xs = math.cos(a)
-                ys = math.sin(a)
-
-                x1 = x
-                y1 = y
-                dist = get_dist(x,y,x1,y1)
-                arm2_pixels = []
-                while dist < 250:
-                    x1 += xs
-                    y1 += ys
-
-                    arm2_pixels.append([x1,y1])
-
-                    dist = get_dist(x,y,x1,y1)
-                x2 = x1
-                y2 = y1
+                x2 = ex
+                y2 = dy1
 
             elif not on_arm1:
                 for i in arm2_pixels:
