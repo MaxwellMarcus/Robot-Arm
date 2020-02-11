@@ -11,7 +11,7 @@ canvas = Canvas(root,width=1000,height=1000)
 canvas.pack()
 
 x_offset = 500
-y_offset = 750
+y_offset = 500
 
 x = 177
 y = -177
@@ -29,8 +29,44 @@ on_arm2 = False
 a1 = 270
 a2 = 270
 
+base_turning  = 0
+
 arm1_pixels = []
 arm2_pixels = []
+
+class Button:
+    def __init__(self,x,y,width,height,color='black',color2='red',text=''):
+        self.x = x
+        self.y = y
+
+        self.width = width
+        self.height = height
+
+        self.color = color
+        self.color2 = color2
+
+        self.text = text
+
+        self.pressed = False
+
+    def is_pressed(self,x,y):
+        if x > self.x-self.width/2 and x < self.x+self.width/2:
+            if y > self.y-self.height/2 and y < self.y+self.height/2:
+                self.pressed = True
+                return True
+        self.pressed = False
+        return False
+
+    def render(self):
+        if not self.pressed:
+            canvas.create_rectangle(self.x-self.width/2,self.y-self.height/2,self.x+self.width/2,self.y+self.height/2,fill=self.color)
+            canvas.create_text(self.x,self.y,text=self.text,font=('TkTextFont',40))
+        else:
+            canvas.create_rectangle(self.x-self.width/3,self.y-self.height/3,self.x+self.width/3,self.y+self.height/3,fill=self.color2)
+            canvas.create_text(self.x,self.y,text=self.text,font=('TkTextFont',30))
+
+        self.pressed = False
+
 for i in range(250):
     arm1_pixels.append([250,500-i])
     arm2_pixels.append([250,250-i])
@@ -65,6 +101,9 @@ root.bind('<Button-1>',mouse_press)
 root.bind('<ButtonRelease-1>',mouse_release)
 root.bind('<Motion>',mouse_move)
 
+left = Button(200,600,100,50,'green','red','Left')
+right = Button(800,600,100,50,'green','red','Right')
+
 while True:
     try:
         canvas.delete(ALL)
@@ -78,7 +117,21 @@ while True:
 
         canvas.create_text(100,50,text='Top Joint Angle: '+str(int(a2))+'\nBottom Joint Angle: '+str(int(a1)),font=('TkTextFont',15),fill='purple')
 
-        if mouse_pressed:
+        left.render()
+        right.render()
+
+        if mouse_pressed and left.is_pressed(mouse_x,mouse_y):
+            base_turning = -1
+
+        elif mouse_pressed and right.is_pressed(mouse_x,mouse_y):
+            base_turning = 1
+
+        else:
+            base_turning = 0
+
+        print(base_turning)
+
+        if mouse_pressed and mouse_y < 550:
             if True:
                 if mouse_y > y_offset:
                     mouse_y = y_offset
@@ -90,7 +143,7 @@ while True:
                 d = get_dist(dx1,dy1,0,0)
 
                 if d > x_offset:
-                    a = math.asin(dy1/d)
+                    a = math.asin(dy1/float(d))
                     if dx1 > 0:
                         dx1 = math.cos(a)*500
                     else:
@@ -108,13 +161,13 @@ while True:
                 if dx1 == 0:
                     dx1 = .1
 
-                a = math.acos(d/500)
-                o = math.atan(dy1/dx1)
+                a = math.acos(d/500.0)
+                o = math.atan(dy1/float(dx1))
                 j1 = -a+o
                 if reversed:
                     j1 = (-(j1-math.radians(90)))+math.radians(90)
 
-                j2 = math.acos((125000-d**2)/125000)
+                j2 = math.acos((125000-d**2)/125000.0)
 
                 a = j1
 
