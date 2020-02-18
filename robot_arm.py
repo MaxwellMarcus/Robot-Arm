@@ -190,8 +190,6 @@ while True:
                     reversed = 1
                     dx1 = -dx1
 
-                print(dx1)
-
                 if dx1 == 0:
                     dx1 = .1
 
@@ -237,7 +235,7 @@ while True:
                 canvas.create_oval(x_offset+30,y_offset+30,x_offset-30,y_offset-30,fill='black')
                 canvas.create_rectangle(x_offset+100,y_offset+60,x_offset-100,y_offset,fill='gray')
 
-                canvas.create_text(100,50,text='Top Joint Angle: '+str(int(i[0]))+'\nBottom Joint Angle: '+str(int(i[1])),font=('TkTextFont',15),fill='purple')
+                canvas.create_text(100,50,text='Top Joint Angle: '+str(int(joint_1_angle))+'\nBottom Joint Angle: '+str(int(joint_2_angle)),font=('TkTextFont',15),fill='purple')
 
                 root.update()
 
