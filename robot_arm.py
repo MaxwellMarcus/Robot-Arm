@@ -3,6 +3,8 @@ try:
 except ImportError:
     from Tkinter import *
 
+import serial
+
 import math
 import time
 
@@ -10,6 +12,8 @@ root = Tk()
 
 canvas = Canvas(root,width=1000,height=1000)
 canvas.pack()
+
+ser = serial.Serial('/dev/cu.usbmodem1421 (Arduino/Genuino Uno)',9600)
 
 x_offset = 500
 y_offset = 500
@@ -135,6 +139,12 @@ while True:
         canvas.create_rectangle(x_offset+100,y_offset+60,x_offset-100,y_offset,fill='gray')
 
         canvas.create_text(100,50,text='Top Joint Angle: '+str(int(joint_1_angle))+'\nBottom Joint Angle: '+str(int(joint_2_angle)),font=('TkTextFont',15),fill='purple')
+
+        s = str(0)+','+str(int(joint_1_angle))+','+str(int(joint_2_angle))
+
+        print(s.encode())
+
+        ser.write(s.encode())
 
         left.render()
         right.render()
