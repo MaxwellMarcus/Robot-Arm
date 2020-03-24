@@ -3,8 +3,6 @@ try:
 except ImportError:
     from Tkinter import *
 
-import serial
-
 import math
 import time
 
@@ -12,12 +10,6 @@ root = Tk()
 
 canvas = Canvas(root,width=1000,height=1000)
 canvas.pack()
-
-try:
-    ser = serial.Serial('COM3',9600)
-except:
-    print('Serial Connection Failed')
-    quit()
 
 x_offset = 500
 y_offset = 500
@@ -72,10 +64,10 @@ class Button:
         if self.available:
             if not self.pressed:
                 canvas.create_rectangle(self.x-self.width/2,self.y-self.height/2,self.x+self.width/2,self.y+self.height/2,fill=self.color)
-                canvas.create_text(self.x,self.y,text=self.text,font=('TkTextFont',40))
+                canvas.create_text(self.x,self.y,text=self.text,font=('TkTextFont',30))
             else:
                 canvas.create_rectangle(self.x-self.width/3,self.y-self.height/3,self.x+self.width/3,self.y+self.height/3,fill=self.color2)
-                canvas.create_text(self.x,self.y,text=self.text,font=('TkTextFont',30))
+                canvas.create_text(self.x,self.y,text=self.text,font=('TkTextFont',20))
 
             self.pressed = False
 
@@ -136,15 +128,6 @@ data_sent = False
 debug = False
 
 while True:
-    if data_sent and connection and not debug:
-        print('Debug Message: ')
-        debug = True
-
-    if data_sent and connection and debug:
-        #if not ser.readline()[0:-2].decode('ascii') == 'working':
-        print(ser.readline().decode('ascii'))
-
-
     try:
         canvas.delete(ALL)
 
@@ -154,13 +137,6 @@ while True:
         canvas.create_oval(x+x_offset+30,y+y_offset+30,x+x_offset-30,y+y_offset-30,fill='black')
         canvas.create_oval(x_offset+30,y_offset+30,x_offset-30,y_offset-30,fill='black')
         canvas.create_rectangle(x_offset+100,y_offset+60,x_offset-100,y_offset,fill='gray')
-
-        s = str(0)+','+str(int(joint_1_angle))+','+str(int(-joint_2_angle))+','
-
-        ser.write(s.encode())
-        if not data_sent:
-            print('Data Successfully Sent')
-            data_sent = True
 
         left.render()
         right.render()
@@ -261,9 +237,8 @@ while True:
                 canvas.create_oval(x_offset+30,y_offset+30,x_offset-30,y_offset-30,fill='black')
                 canvas.create_rectangle(x_offset+100,y_offset+60,x_offset-100,y_offset,fill='gray')
 
-                canvas.create_text(100,50,text='Top Joint Angle: '+str(int(joint_1_angle))+'\nBottom Joint Angle: '+str(int(joint_2_angle)),font=('TkTextFont',15),fill='purple')
+        canvas.create_text(100,50,text='Top Joint Angle: '+str(int(joint_1_angle))+'\nBottom Joint Angle: '+str(int(joint_2_angle)),font=('TkTextFont',15),fill='purple')
 
-                root.update()
 
 
         record.render()
@@ -330,6 +305,19 @@ while True:
 
                 x2 = ex
                 y2 = dy1
+
+                if mouse_x < 500:
+                    print(joint_1_angle)
+                    joint_1_angle = 360-joint_1_angle
+                    print(joint_1_angle)
+                    print()
+                joint_1_angle = joint_1_angle - 90
+
+                if mouse_x > 500:
+                    joint_2_angle = -joint_2_angle
+
+                else:
+                    joint_2_angle = 360 - joint_2_angle
 
             elif not on_arm1:
                 for i in arm2_pixels:
